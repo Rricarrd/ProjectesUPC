@@ -2,10 +2,10 @@ clear
 clc
 % Torque Requirements for a Rectangular Propeller
 % Propeller physical caratheristics
-radius = 0.5; %[m] Distance from the hub to the tip
-chord = [0.12 0.08]; %[m] Assumed constant chord
-pitch = [14 7]; %[º] Angle between the airfoil's chord and the hub's plane
-
+radius = 0.5; %[m] Distance from the hub to the tip ########### FIXAT
+chord = [0.12 0.08]; %[m] Assumed constant chord ########### ES POT VARIAR
+pitch = [14 7]; %[º] Angle between the airfoil's chord and the hub's plane ########### ES POT VARIAR
+n_blades = 2;  %########### ES POT VARIAR
 
 % Airfoil selected - S1223-IL
 Re = [50000 100000 200000 500000 1000000];
@@ -14,7 +14,7 @@ Re = [50000 100000 200000 500000 1000000];
 g = 9.81; %[m/s^2] Gravity Acceleration
 rho = 1.225; %[kg/m^3] Air Density
 mu = 1.8e-5; %[Ns/m] Dynamic Viscosity
-rpm = 2500; %[rmp] Propeller Turn-speed
+rpm = 3000; %[rmp] Propeller Turn-speed   ########### ES POT VARIAR
 omega = rpm*2*pi/60; %[rad/s]
 elements = 100; %Number of domain elements
 pi = 3.141592;
@@ -169,15 +169,16 @@ for i = 1:elements
       Cd(i,1) = Interpol(3e6,Cd2,Re(5),Cd1,Re_X(i,1)); 
       
     else 
-     
-  
     end
     
   
  
     %AR (induced drag assumed constant along the wing)
-    AR = (2*radius)/local_chord(i);
-    S = local_chord(i)*(radius/elements); %[m^2] Element Surface    
+    if i<elements
+    AR = (2*radius)^2/((chord(1)+chord(2))*radius); %Whole Wing AR with trapezoidal area
+    S = 0.5*(local_chord(i)+local_chord(i+1))*(radius/elements); %[m^2] Element Surface Trapezoidal
+    else
+    end
     
     %Coeficients de la pala completa
     CL(i,1) = Cl(i,1);
@@ -199,11 +200,14 @@ end
 
 
 % Double Bladed Propeller
-Total_Lift = 2*Total_Lift; %[N]
-Total_Drag = 2*Total_Drag; %[N]
-Total_Torque = 2*Total_Torque; %[Nm]
+Total_Lift = n_blades*Total_Lift; %[N]
+Total_Drag = n_blades*Total_Drag; %[N]
+Total_Torque = n_blades*Total_Torque; %[Nm]
 
 % Units Adaptation
 THRUST = Total_Lift/g; %[kgf]
 POWER = Total_Torque*omega/1000; %[kW]
 TP_RATIO = THRUST/POWER;%[kgf/kW]
+
+
+
