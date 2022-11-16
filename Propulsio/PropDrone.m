@@ -3,7 +3,7 @@ clc
 % Torque Requirements for a Rectangular Propeller
 % Propeller physical caratheristics
 radius = 0.5; %[m] Distance from the hub to the tip
-chord = 0.1; %[m] Assumed constant chord
+chord = 0.12; %[m] Assumed constant chord
 pitch = [14 7]; %[º] Angle between the airfoil's chord and the hub's plane
 
 
@@ -14,11 +14,15 @@ Re = [50000 100000 200000 500000 1000000];
 g = 9.81; %[m/s^2] Gravity Acceleration
 rho = 1.225; %[kg/m^3] Air Density
 mu = 1.8e-5; %[Ns/m] Dynamic Viscosity
-rpm = 3500; %[rmp] Propeller Turn-speed
+rpm = 2500; %[rmp] Propeller Turn-speed
 omega = rpm*2*pi/60; %[rad/s]
 elements = 100; %Number of domain elements
+pi = 3.141592;
 S = chord*(radius/elements); %[m^2] Element Surface
-
+ 
+%AR (induced drag assumed constant along the wing)
+AR = (2*radius)/chord;
+oswald = 0.85;
 
 %Airfoil Data S1223-IL
 Re5e4_tab = readtable('xf-s1223-il-50000-n5.csv');
@@ -40,8 +44,11 @@ alpha = linspace(pitch(1),pitch(2), elements);
  Lift = zeros(elements,1);
  Drag = zeros(elements,1);
  Torque = zeros(elements,1);
- Efficiency = zeros(elements,1);
+ Efficiency_wing = zeros(elements,1);
+ Efficiency_airfoil = zeros(elements,1);
 
+ CD = zeros(elements,1);
+ CL = zeros(elements,1);
  Cl = zeros(elements,1);
  Cd = zeros(elements,1);
  Re_X= zeros(elements,1);
@@ -166,10 +173,18 @@ for i = 1:elements
   
     end
     
-    Lift(i,1) = 0.5*rho*S*(omega*x)^2*Cl(i,1);
-    Drag(i,1) = 0.5*rho*S*(omega*x)^2*Cd(i,1);
-    Torque(i,1) = 0.5*rho*S*(omega*x)^2*Cd(i,1)*x;
-    Efficiency(i,1) = Cl(i,1)/Cd(i,1);
+   
+    %Coeficients de la pala completa
+    CL(i,1) = Cl(i,1);
+    CD(i,1) = Cd(i,1) + CL(i,1)^2/(AR*pi*oswald) ;
+    
+    
+    %Lift i drag
+    Lift(i,1) = 0.5*rho*S*(omega*x)^2*CL(i,1);
+    Drag(i,1) = 0.5*rho*S*(omega*x)^2*CD(i,1);
+    Torque(i,1) = 0.5*rho*S*(omega*x)^2*CD(i,1)*x;
+    Efficiency_wing(i,1) = CL(i,1)/CD(i,1);
+    Efficiency_airfoil(i,1) = Cl(i,1)/Cd(i,1);
     
     Total_Lift = Total_Lift + Lift(i,1) ;
     Total_Drag = Total_Drag +  Drag(i,1) ;
@@ -184,5 +199,5 @@ Total_Drag = 2*Total_Drag; %[N]
 Total_Torque = 2*Total_Torque; %[Nm]
 
 % Units Adaptation
-Thrust = Total_Lift/g; %[kgf]
-Power = Total_Torque*omega; %[W]
+THRUST = Total_Lift/g; %[kgf]
+POWER = Total_Torque*omega/1000; %[kW]
