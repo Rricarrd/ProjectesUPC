@@ -1,8 +1,9 @@
 clear
-%% Torque Requirements for a Rectangular Propeller
+clc
+% Torque Requirements for a Rectangular Propeller
 % Propeller physical caratheristics
 radius = 0.5; %[m] Distance from the hub to the tip
-chord = 0.12; %[m] Assumed constant chord
+chord = 0.1; %[m] Assumed constant chord
 pitch = [14 7]; %[º] Angle between the airfoil's chord and the hub's plane
 
 
@@ -34,15 +35,20 @@ Re1e6 = table2array(Re1e6_tab);
 
 %Profile Alphas
 alpha = linspace(pitch(1),pitch(2), elements);
-%%
+
 %Aerodynamic Variables
-Total_Lift = 0;
-Total_Drag = 0;
-Total_Torque = 0;
+ Lift = zeros(elements,1);
+ Drag = zeros(elements,1);
+ Torque = zeros(elements,1);
+ Efficiency = zeros(elements,1);
 
  Cl = zeros(elements,1);
  Cd = zeros(elements,1);
  Re_X= zeros(elements,1);
+ 
+Total_Lift = 0; %[N]
+Total_Drag = 0; %[N]
+Total_Torque = 0; %[Nm]
 
 for i = 1:elements
     x = radius*i/elements; % Central position of the element
@@ -160,23 +166,23 @@ for i = 1:elements
   
     end
     
+    Lift(i,1) = 0.5*rho*S*(omega*x)^2*Cl(i,1);
+    Drag(i,1) = 0.5*rho*S*(omega*x)^2*Cd(i,1);
+    Torque(i,1) = 0.5*rho*S*(omega*x)^2*Cd(i,1)*x;
+    Efficiency(i,1) = Cl(i,1)/Cd(i,1);
     
-    
-    
-
-    Total_Lift = Total_Lift + 0.5*rho*S*(omega*x)^2*Cl(i,1);
-    Total_Drag = Total_Drag + 0.5*rho*S*(omega*x)^2*Cd(i,1);
-    Total_Torque = Total_Torque + 0.5*rho*S*(omega*x)^2*Cd(i,1)*x;
+    Total_Lift = Total_Lift + Lift(i,1) ;
+    Total_Drag = Total_Drag +  Drag(i,1) ;
+    Total_Torque = Total_Torque +  Torque(i,1);
     
 end
 
 
 % Double Bladed Propeller
-Total_Lift = 2*Total_Lift;
-Total_Drag = 2*Total_Drag;
-Total_Torque = 2*Total_Torque;
+Total_Lift = 2*Total_Lift; %[N]
+Total_Drag = 2*Total_Drag; %[N]
+Total_Torque = 2*Total_Torque; %[Nm]
+
 % Units Adaptation
-Thrust = Total_Lift/g;
-Power = Total_Torque*omega;
-%He fet aquesta tonteria per intentar de donar numeros ja de Torque, Power etc
-%Cal dir que no son massa grans els valors que surten. Com a molt 5Kw
+Thrust = Total_Lift/g; %[kgf]
+Power = Total_Torque*omega; %[W]
