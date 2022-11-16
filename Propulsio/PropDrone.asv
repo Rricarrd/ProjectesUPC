@@ -3,7 +3,7 @@ clc
 % Torque Requirements for a Rectangular Propeller
 % Propeller physical caratheristics
 radius = 0.5; %[m] Distance from the hub to the tip
-chord = 0.1; %[m] Assumed constant chord
+chord = [0.12 0.8]; %[m] Assumed constant chord
 pitch = [14 7]; %[º] Angle between the airfoil's chord and the hub's plane
 
 
@@ -14,14 +14,10 @@ Re = [50000 100000 200000 500000 1000000];
 g = 9.81; %[m/s^2] Gravity Acceleration
 rho = 1.225; %[kg/m^3] Air Density
 mu = 1.8e-5; %[Ns/m] Dynamic Viscosity
-rpm = 3500; %[rmp] Propeller Turn-speed
+rpm = 2500; %[rmp] Propeller Turn-speed
 omega = rpm*2*pi/60; %[rad/s]
 elements = 100; %Number of domain elements
 pi = 3.141592;
-S = chord*(radius/elements); %[m^2] Element Surface
- 
-%AR (induced drag assumed constant along the wing)
-AR = (2*radius)/c;
 oswald = 0.85;
 
 %Airfoil Data S1223-IL
@@ -37,6 +33,8 @@ Re2e5 = table2array(Re2e5_tab);
 Re5e5 = table2array(Re5e5_tab);
 Re1e6 = table2array(Re1e6_tab);
 
+%Profile Chords
+local_chord = linspace(chord(1),chord(2), elements);
 %Profile Alphas
 alpha = linspace(pitch(1),pitch(2), elements);
 
@@ -58,8 +56,11 @@ Total_Drag = 0; %[N]
 Total_Torque = 0; %[Nm]
 
 for i = 1:elements
+    
+    %Local Reynolds
     x = radius*i/elements; % Central position of the element
-    Re_X(i,1) =(rho*omega*x*chord)/mu;
+    
+    Re_X(i,1) =(rho*omega*x*chord(i))/mu;
    
     
     if Re_X(i,1) <= Re(1) %%Re<50000 ######################
@@ -173,7 +174,12 @@ for i = 1:elements
   
     end
     
-   
+  
+ 
+    %AR (induced drag assumed constant along the wing)
+    AR = (2*radius)/chord;
+    S = chord*(radius/elements); %[m^2] Element Surface    
+    
     %Coeficients de la pala completa
     CL(i,1) = Cl(i,1);
     CD(i,1) = Cd(i,1) + CL(i,1)^2/(AR*pi*oswald) ;
@@ -199,5 +205,5 @@ Total_Drag = 2*Total_Drag; %[N]
 Total_Torque = 2*Total_Torque; %[Nm]
 
 % Units Adaptation
-Thrust = Total_Lift/g; %[kgf]
-Power = Total_Torque*omega; %[W]
+THRUST = Total_Lift/g; %[kgf]
+POWER = Total_Torque*omega/1000; %[kW]
