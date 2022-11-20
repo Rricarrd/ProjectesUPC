@@ -20,7 +20,7 @@ mu = 1.8e-5; %[Ns/m] Dynamic Viscosity
 elements = 100; %Number of domain elements
 pi = 3.141592;
 oswald = 0.85;
-motor_efficiency = 0.8;
+motor_efficiency = 0.85;
 propulsive_efficiency = 0.9;
 
 %Airfoil Data S1223-IL

@@ -4,7 +4,7 @@ clc
 % Propeller physical caratheristics
 radius = 0.5; %[m] Distance from the hub to the tip ########### FIXAT
 chord = [0.08 0.05]; %[m] Assumed constant chord ########### ES POT VARIAR
-pitch = [14 3]; %[º] Angle between the airfoil's chord and the hub's plane ########### ES POT VARIAR
+pitch = [12 3]; %[º] Angle between the airfoil's chord and the hub's plane ########### ES POT VARIAR
 n_blades = 2;  %########### ES POT VARIAR
 rpm = 3500;
 omega = (rpm*2*pi)/60; %[rad/s]
@@ -18,10 +18,10 @@ rho = 1.225; %[kg/m^3] Air Density
 mu = 1.8e-5; %[Ns/m] Dynamic Viscosity
 
 
-elements = 100; %Number of domain elements
+elements = 200; %Number of domain elements
 pi = 3.141592;
 oswald = 0.85;
-motor_efficiency = 0.8;
+motor_efficiency = 0.85;
 propulsive_efficiency = 0.9;
 
 %Airfoil Data S1223-IL
@@ -55,9 +55,9 @@ alpha = linspace(pitch(1),pitch(2), elements);
  Cd = zeros(elements,1);
  Re_X= zeros(elements,1);
  
-Total_Lift = zeros(elements,1); %[N]
-Total_Drag = zeros(elements,1); %[N]
-Total_Torque = zeros(elements,1); %[Nm]
+Total_Lift = 0; %[N]
+Total_Drag = 0; %[N]
+Total_Torque = 0; %[Nm]
 
 dist = linspace(0,radius,elements); %[m]
 
@@ -222,7 +222,7 @@ TP_RATIO = THRUST/ELECTRICAL_POWER;%[kgf/kW]
 
 %% PLot 1
 figure
-
+title('CL and CD distributions');
 %Cl
 yyaxis left
 plot(dist*100,CL);
@@ -238,7 +238,30 @@ ylabel('CD');
 hold off
 
 
+figure
+title('Lift and Drag distributions');
+%Lift
+yyaxis left
+plot(dist*100,Lift);
 
+xlabel('Blade distance from root (cm)');
+ylabel('Lift (N)');
+hold on
+
+%Drag
+yyaxis right
+plot(dist*100,Drag);
+ylabel('Drag (N)');
+
+hold off
+
+
+%Torque
+figure
+title('Torque distribution');
+plot(dist*100,Torque);
+ylabel('Torque (Nm)');
+xlabel('Blade distance from root (cm)');
 
 % %% Plot 2
 % figure

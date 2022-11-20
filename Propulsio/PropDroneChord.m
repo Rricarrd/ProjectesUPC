@@ -3,7 +3,7 @@ clc
 % Torque Requirements for a Rectangular Propeller
 % Propeller physical caratheristics
 radius = 0.5; %[m] Distance from the hub to the tip ########### FIXAT
-chord = [0.08 0.03]; %[m] Assumed constant chord ########### ES POT VARIAR
+chord = [0.08 0.06]; %[m] Assumed constant chord ########### ES POT VARIAR
 pitch = [14 3]; %[º] Angle between the airfoil's chord and the hub's plane ########### ES POT VARIAR
 n_blades = 2;  %########### ES POT VARIAR
 
@@ -20,7 +20,7 @@ mu = 1.8e-5; %[Ns/m] Dynamic Viscosity
 elements = 100; %Number of domain elements
 pi = 3.141592;
 oswald = 0.85;
-motor_efficiency = 0.8;
+motor_efficiency = 0.85;
 propulsive_efficiency = 0.9;
 
 %Airfoil Data S1223-IL
@@ -67,7 +67,7 @@ TP_RATIO = zeros(elements,1);%[kgf/kW]
 rpm = 3500;
 omega = (rpm*2*pi)/60; %[rad/s]
 
-chord_end = linspace(0.8,0.1,elements);
+chord_end = linspace(0.8,0.01,elements);
 
 for k = 1:elements
 
