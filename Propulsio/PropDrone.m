@@ -6,6 +6,8 @@ radius = 0.5; %[m] Distance from the hub to the tip ########### FIXAT
 chord = [0.08 0.05]; %[m] Assumed constant chord ########### ES POT VARIAR
 pitch = [14 3]; %[º] Angle between the airfoil's chord and the hub's plane ########### ES POT VARIAR
 n_blades = 2;  %########### ES POT VARIAR
+rpm = 3500;
+omega = (rpm*2*pi)/60; %[rad/s]
 
 % Airfoil selected - S1223-IL
 Re = [50000 100000 200000 500000 1000000];
@@ -14,12 +16,13 @@ Re = [50000 100000 200000 500000 1000000];
 g = 9.81; %[m/s^2] Gravity Acceleration
 rho = 1.225; %[kg/m^3] Air Density
 mu = 1.8e-5; %[Ns/m] Dynamic Viscosity
-rpm = 3500; %[rmp] Propeller Turn-speed   ########### ES POT VARIAR
-omega = rpm*2*pi/60; %[rad/s]
+
+
 elements = 100; %Number of domain elements
 pi = 3.141592;
 oswald = 0.85;
 motor_efficiency = 0.8;
+propulsive_efficiency = 0.9;
 
 %Airfoil Data S1223-IL
 Re5e4_tab = readtable('xf-s1223-il-50000-n5.csv');
@@ -52,9 +55,11 @@ alpha = linspace(pitch(1),pitch(2), elements);
  Cd = zeros(elements,1);
  Re_X= zeros(elements,1);
  
-Total_Lift = 0; %[N]
-Total_Drag = 0; %[N]
-Total_Torque = 0; %[Nm]
+Total_Lift = zeros(elements,1); %[N]
+Total_Drag = zeros(elements,1); %[N]
+Total_Torque = zeros(elements,1); %[Nm]
+
+dist = linspace(0,radius,elements); %[m]
 
 for i = 1:elements
     
@@ -200,16 +205,43 @@ for i = 1:elements
 end
 
 
+
 % Double Bladed Propeller
 Total_Lift = n_blades*Total_Lift; %[N]
 Total_Drag = n_blades*Total_Drag; %[N]
 Total_Torque = n_blades*Total_Torque; %[Nm]
 
 % Units Adaptation
-THRUST = Total_Lift/g; %[kgf]
+THRUST = (Total_Lift/g)/propulsive_efficiency; %[kgf]
 MECHANICAL_POWER = Total_Torque*omega/1000; %[kW]
 ELECTRICAL_POWER = MECHANICAL_POWER/motor_efficiency;
 TP_RATIO = THRUST/ELECTRICAL_POWER;%[kgf/kW]
 
 
 
+
+%% PLot 1
+figure
+
+%Cl
+yyaxis left
+plot(dist*100,CL);
+
+xlabel('Blade distance from root (cm)');
+ylabel('CL');
+hold on
+
+%Cd
+yyaxis right
+plot(dist*100,CD);
+ylabel('CD');
+hold off
+
+
+
+
+% %% Plot 2
+% figure
+% plot(rpm,TP_RATIO);
+% xlabel('Rotational Speed (RPM)');
+% ylabel('Thrust/Power Ratio (kgf/kW)');
