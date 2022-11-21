@@ -3,7 +3,7 @@ clc
 % Torque Requirements for a Rectangular Propeller
 % Propeller physical caratheristics
 radius = 0.5; %[m] Distance from the hub to the tip ########### FIXAT
-chord = [0.08 0.03]; %[m] Assumed constant chord ########### ES POT VARIAR
+chord = [0.08 0.025]; %[m] Assumed constant chord ########### ES POT VARIAR
 pitch = [14 3]; %[º] Angle between the airfoil's chord and the hub's plane ########### ES POT VARIAR
 n_blades = 2;  %########### ES POT VARIAR
 rpm_min = 100;
@@ -21,8 +21,8 @@ mu = 1.8e-5; %[Ns/m] Dynamic Viscosity
 elements = 100; %Number of domain elements
 pi = 3.141592;
 oswald = 0.85;
-motor_efficiency = 0.85;
-propulsive_efficiency = 0.9;
+motor_efficiency = 0.9;
+
 
 %Airfoil Data S1223-IL
 Re5e4_tab = readtable('xf-s1223-il-50000-n5.csv');
@@ -224,7 +224,7 @@ Total_Drag(k,1) = n_blades*Total_Drag(k,1); %[N]
 Total_Torque(k,1) = n_blades*Total_Torque(k,1); %[Nm]
 
 % Units Adaptation
-THRUST(k,1) = (Total_Lift(k,1)/g)/propulsive_efficiency; %[kgf]
+THRUST(k,1) = (Total_Lift(k,1)/g); %[kgf]
 MECHANICAL_POWER(k,1) = Total_Torque(k,1)*omega/1000; %[kW]
 ELECTRICAL_POWER(k,1) = MECHANICAL_POWER(k,1)/motor_efficiency;
 TP_RATIO(k,1) = THRUST(k,1)/ELECTRICAL_POWER(k,1);%[kgf/kW]
