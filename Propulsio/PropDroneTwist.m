@@ -21,7 +21,7 @@ elements = 100; %Number of domain elements
 pi = 3.141592;
 oswald = 0.85;
 motor_efficiency = 0.9;
-
+ESC_efficiency = 0.9;
 
 %Airfoil Data S1223-IL
 Re5e4_tab = readtable('xf-s1223-il-50000-n5.csv');
@@ -64,7 +64,7 @@ ELECTRICAL_POWER = zeros(elements,1);
 TP_RATIO = zeros(elements,1);%[kgf/kW]
 
 
-rpm = 3500;
+rpm = 4500;
 omega = (rpm*2*pi)/60; %[rad/s]
 
 pitch_end = linspace(14,0,elements);
@@ -227,7 +227,7 @@ Total_Torque(k,1) = n_blades*Total_Torque(k,1); %[Nm]
 % Units Adaptation
 THRUST(k,1) = (Total_Lift(k,1)/g); %[kgf]
 MECHANICAL_POWER(k,1) = Total_Torque(k,1)*omega/1000; %[kW]
-ELECTRICAL_POWER(k,1) = MECHANICAL_POWER(k,1)/motor_efficiency;
+ELECTRICAL_POWER(k,1) = MECHANICAL_POWER(k,1)/(motor_efficiency*ESC_efficiency);
 TP_RATIO(k,1) = THRUST(k,1)/ELECTRICAL_POWER(k,1);%[kgf/kW]
 
 

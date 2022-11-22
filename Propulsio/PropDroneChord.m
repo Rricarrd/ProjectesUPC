@@ -21,7 +21,7 @@ elements = 100; %Number of domain elements
 pi = 3.141592;
 oswald = 0.85;
 motor_efficiency = 0.9;
-
+ESC_efficiency = 0.9;
 
 %Airfoil Data S1223-IL
 Re5e4_tab = readtable('xf-s1223-il-50000-n5.csv');
@@ -48,6 +48,7 @@ alpha = linspace(pitch(1),pitch(2), elements);
  Efficiency_wing = zeros(elements,1);
  Efficiency_airfoil = zeros(elements,1);
 
+ S = zeros(elements+1,1);
  CD = zeros(elements,1);
  CL = zeros(elements,1);
  Cl = zeros(elements,1);
@@ -64,15 +65,15 @@ ELECTRICAL_POWER = zeros(elements,1);
 TP_RATIO = zeros(elements,1);%[kgf/kW]
 
 
-rpm = 3500;
+rpm = 4500;
 omega = (rpm*2*pi)/60; %[rad/s]
 
-chord_end = linspace(0.3,0.01,elements);
+chord_end = linspace(0.04,0.01,elements);
 
 for k = 1:elements
 
 %Profile Chords
-local_chord = linspace(chord(1),chord_end(1,k), elements);
+local_chord = linspace(chord(1),chord_end(1,k), elements+1);
 
 for i = 1:elements
     
@@ -193,11 +194,9 @@ for i = 1:elements
   
  
     %AR (induced drag assumed constant along the wing)
-    if i<elements
-    AR = (radius)^2/(0.5*(chord(1)+chord_end(i))*radius); %Whole Wing AR with trapezoidal area
-    S = 0.5*(local_chord(i)+local_chord(i+1))*(radius/elements); %[m^2] Element Surface Trapezoidal
-    else
-    end
+    AR = (radius)^2/(0.5*(chord(1)+chord_end(1,k))*radius); %Whole Wing AR with trapezoidal area
+    S(i,1) = 0.5*(local_chord(i)+local_chord(i+1))*(radius/elements); %[m^2] Element Surface Trapezoidal
+   
     
     %Coeficients de la pala completa
     CL(i,1) = Cl(i,1);
@@ -205,9 +204,9 @@ for i = 1:elements
     
     
     %Lift i drag
-    Lift(i,1) = 0.5*rho*S*(omega*x)^2*CL(i,1);
-    Drag(i,1) = 0.5*rho*S*(omega*x)^2*CD(i,1);
-    Torque(i,1) = 0.5*rho*S*(omega*x)^2*CD(i,1)*x;
+    Lift(i,1) = 0.5*rho*S(i,1)*(omega*x)^2*CL(i,1);
+    Drag(i,1) = 0.5*rho*S(i)*(omega*x)^2*CD(i,1);
+    Torque(i,1) = 0.5*rho*S(i)*(omega*x)^2*CD(i,1)*x;
     Efficiency_wing(i,1) = CL(i,1)/CD(i,1);
     Efficiency_airfoil(i,1) = Cl(i,1)/Cd(i,1);
     
@@ -227,7 +226,7 @@ Total_Torque(k,1) = n_blades*Total_Torque(k,1); %[Nm]
 % Units Adaptation
 THRUST(k,1) = (Total_Lift(k,1)/g); %[kgf]
 MECHANICAL_POWER(k,1) = Total_Torque(k,1)*omega/1000; %[kW]
-ELECTRICAL_POWER(k,1) = MECHANICAL_POWER(k,1)/motor_efficiency;
+ELECTRICAL_POWER(k,1) = MECHANICAL_POWER(k,1)/(motor_efficiency*ESC_efficiency);
 TP_RATIO(k,1) = THRUST(k,1)/ELECTRICAL_POWER(k,1);%[kgf/kW]
 
 
