@@ -263,7 +263,7 @@ plot(dist*100,Torque);
 ylabel('Torque (Nm)');
 xlabel('Blade distance from root (cm)');
 
-% %% Plot 2
+%% Plot 2
 % figure
 % plot(rpm,TP_RATIO);
 % xlabel('Rotational Speed (RPM)');
