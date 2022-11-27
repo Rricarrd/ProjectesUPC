@@ -1,0 +1,1 @@
+[cl,cd,phi,aoa,a,ap]=BEMeb3;
