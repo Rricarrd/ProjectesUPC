@@ -4,6 +4,7 @@ clc
 % Propeller physical caratheristics
 radius = 0.5; %[m] Distance from the hub to the tip ########### FIXAT
 chord = [0.08 0.025]; %[m] Assumed constant chord ########### ES POT VARIAR
+taper_ratio = chord(2)/chord(1);
 pitch = [14 3]; %[º] Angle between the airfoil's chord and the hub's plane ########### ES POT VARIAR
 n_blades = 2;  %########### ES POT VARIAR
 rpm = 4500;
@@ -39,8 +40,11 @@ Re1e6 = table2array(Re1e6_tab);
 
 %Profile Chords
 local_chord = linspace(chord(1),chord(2), elements);
+
 %Profile Alphas
 alpha = linspace(pitch(1),pitch(2), elements);
+epsilon = zeros(elements,1);
+alpha_eff = zeros(elements,1);
 
 %Aerodynamic Variables
  Lift = zeros(elements,1);
@@ -61,17 +65,24 @@ Total_Torque = 0; %[Nm]
 
 dist = linspace(0,radius,elements); %[m]
 
+%Axial speed
+v_axial = 10; %[m/s]
+
 for i = 1:elements
     
     %Local Reynolds
     x = radius*i/elements; % Central position of the element
+    v_local = omega*x;
     Re_X(i,1) =(rho*omega*x*local_chord(i))/mu;
    
+    %Effective alpha
+    epsilon(i) = atan(v_axial/v_local);
+    alpha_eff(i) = alpha(i) - epsilon(i);
     
     if Re_X(i,1) <= Re(1) %%Re<50000 ######################
        
      for j = 1:size(Re5e4)-1
-      if Re5e4(j+1,1)>alpha(i) && Re5e4(j,1)<=alpha(i)
+      if Re5e4(j+1,1)>alpha_eff(i) && Re5e4(j,1)<=alpha_eff(i)
       Cl2 = Re5e4(j,2);   
       Cd2 = Re5e4(j,3);     
       end 
@@ -86,14 +97,14 @@ for i = 1:elements
     elseif  Re_X(i,1)>Re(1) && Re_X(i,1)<=Re(2) %% 50000<Re<100000  ######################
        
      for j = 1:size(Re5e4)-1
-      if Re5e4(j+1,1)>alpha(i) && Re5e4(j,1)<=alpha(i)
+      if Re5e4(j+1,1)>alpha_eff(i) && Re5e4(j,1)<=alpha_eff(i)
       Cl1 = Re5e4(j,2);   
       Cd1 = Re5e4(j,3);     
       end 
      end
      
      for j = 1:size(Re1e5)-1
-      if Re1e5(j+1,1)>alpha(i) && Re1e5(j,1)<=alpha(i)
+      if Re1e5(j+1,1)>alpha_eff(i) && Re1e5(j,1)<=alpha_eff(i)
       Cl2 = Re1e5(j,2);   
       Cd2 = Re1e5(j,3);     
       end 
@@ -105,14 +116,14 @@ for i = 1:elements
     elseif  Re_X(i,1)>Re(2) && Re_X(i,1)<=Re(3)   %% 100000<Re<200000  ######################
       
      for j = 1:size(Re1e5)-1
-      if Re1e5(j+1,1)>alpha(i) && Re1e5(j,1)<=alpha(i)
+      if Re1e5(j+1,1)>alpha_eff(i) && Re1e5(j,1)<=alpha_eff(i)
       Cl1 = Re1e5(j,2);   
       Cd1 = Re1e5(j,3);     
       end 
      end
      
      for j = 1:size(Re2e5)-1
-      if Re2e5(j+1,1)>alpha(i) && Re2e5(j,1)<=alpha(i)
+      if Re2e5(j+1,1)>alpha_eff(i) && Re2e5(j,1)<=alpha_eff(i)
       Cl2 = Re2e5(j,2);   
       Cd2 = Re2e5(j,3);     
       end 
@@ -124,14 +135,14 @@ for i = 1:elements
     elseif  Re_X(i,1)>Re(3) && Re_X(i,1)<=Re(4)   %% 200000<Re<500000  ######################
         
      for j = 1:size(Re2e5)-1
-      if Re2e5(j+1,1)>alpha(i) && Re2e5(j,1)<=alpha(i)
+      if Re2e5(j+1,1)>alpha_eff(i) && Re2e5(j,1)<=alpha_eff(i)
       Cl1 = Re2e5(j,2);   
       Cd1 = Re2e5(j,3);     
       end 
      end
      
      for j = 1:size(Re5e5)-1  
-      if Re5e5(j+1,1)>alpha(i) && Re5e5(j,1)<=alpha(i)
+      if Re5e5(j+1,1)>alpha_eff(i) && Re5e5(j,1)<=alpha_eff(i)
       Cl2 = Re5e5(j,2);   
       Cd2 = Re5e5(j,3);    
       end 
@@ -143,14 +154,14 @@ for i = 1:elements
       elseif  Re_X(i,1)>Re(4) && Re_X(i,1)<=Re(5)   %% 500000<Re<1000000  ######################
         
      for j = 1:size(Re5e5)-1  
-      if Re5e5(j+1,1)>alpha(i) && Re5e5(j,1)<=alpha(i)
+      if Re5e5(j+1,1)>alpha_eff(i) && Re5e5(j,1)<=alpha_eff(i)
       Cl1 = Re5e5(j,2);   
       Cd1 = Re5e5(j,3);     
       end 
      end
      
      for j = 1:size(Re1e6)-1  
-      if Re1e6(j+1,1)>alpha(i) && Re1e6(j,1)<=alpha(i)
+      if Re1e6(j+1,1)>alpha_eff(i) && Re1e6(j,1)<=alpha_eff(i)
       Cl2 = Re1e6(j,2);   
       Cd2 = Re1e6(j,3);     
       end 
@@ -162,7 +173,7 @@ for i = 1:elements
     elseif  Re_X(i,1)>Re(5)  %% Re<1000000  ######################
         
      for j = 1:size(Re1e6)-1  
-      if Re1e6(j+1,1)>alpha(i) && Re1e6(j,1)<=alpha(i)
+      if Re1e6(j+1,1)>alpha_eff(i) && Re1e6(j,1)<=alpha_eff(i)
       Cl1 = Re1e6(j,2);   
       Cd1 = Re1e6(j,3);     
       end 
