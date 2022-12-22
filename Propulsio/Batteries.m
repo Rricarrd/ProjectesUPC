@@ -47,9 +47,9 @@ pendent = coefs(1);
 
 %% Flight time / payload graph
 MTOW = 518.75; %[kg]
-PL = 1:1:200; %[kg]
+PL = 1:1:280; %[kg]
 BAT = 140; %[kg]
-OEW_nobat = 178; %[kg]
+OEW_nobat = 80; %[kg]
 
 
 

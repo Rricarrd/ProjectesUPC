@@ -66,7 +66,7 @@ Total_Torque = 0; %[Nm]
 dist = linspace(0,radius,elements); %[m]
 
 %Axial speed
-v_axial = 10; %[m/s]
+v_axial = 0 ; %[m/s]
 
 for i = 1:elements
     
@@ -284,6 +284,6 @@ xlabel('Blade distance from root (cm)');
 
 %% X8 Configuration
 n_motors = 8;
-X8_loses = 0.8;
+X8_loses = 0.80;
 TOTAL_THRUST = THRUST*n_motors*X8_loses;
 TOTAL_POWER = ELECTRICAL_POWER*n_motors;

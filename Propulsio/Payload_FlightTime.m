@@ -246,9 +246,9 @@ end
 %% Data and polyfit
 
 MTOW = 518.75; %[kg]
-PL = 1:1:200; %[kg]
+PL = 1:1:280; %[kg]
 BAT = 140; %[kg]
-OEW_nobat = 178; %[kg]
+OEW_nobat = 80; %[kg]
 
 %Fixed weight
 FixedW = OEW_nobat+BAT;
